@@ -5,9 +5,13 @@ import { jokeAdd, jokeListUpdate } from "./actions";
 import { JokeType } from "../types";
 
 const fetchJoke = async () => {
-  const res = await fetch("https://api.chucknorris.io/jokes/random");
-  const data = await res.json();
-  return data;
+  try {
+    const res = await fetch("https://api.chucknorris.io/jokes/random");
+    const data = await res.json();
+    return data;
+  } catch {
+    return null;
+  }
 };
 
 const saveList = (jokesList: Array<JokeType>) => {
@@ -20,9 +24,11 @@ const saveList = (jokesList: Array<JokeType>) => {
 
 function* getWorker() {
   const joke: JokeType = yield call(fetchJoke);
-  yield put(jokeAdd(joke));
-  const jokesList: Array<JokeType> = yield select((state) => state.jokesList);
-  yield call(saveList, jokesList);
+  if (joke) {
+    yield put(jokeAdd(joke));
+    const jokesList: Array<JokeType> = yield select((state) => state.jokesList);
+    yield call(saveList, jokesList);
+  }
 }
 
 const loadJokes = () => {
